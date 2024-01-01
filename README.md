@@ -1,5 +1,11 @@
 # protein-huffman
 
+TODO
+
+- [ ] Encode the text in binary using the tree
+- [ ] Somehow store the tree information in the file
+- [ ] allow for other characters, like 'ATOM' that shows up alot, it can be represented with a smaller string
+
 For example transforming files like [`A.pdb`](./data/A.pdb) into huffman trees for compression
 
 Max Depth=`12`
