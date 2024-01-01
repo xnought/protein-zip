@@ -4,6 +4,7 @@ For example transforming files like [`A.pdb`](./data/A.pdb) into huffman trees f
 
 Max Depth=`12`
 
+```python
 Node(freq=`2,167,121`)
 ├── Node(freq=`1,279,358`)
 │   ├── Node(freq=`523,681`)
@@ -106,3 +107,4 @@ Node(freq=`2,167,121`)
 │                       └── Leaf(char=`7`, freq=`62,000`)
 └── Node(freq=`887,763`)
     └── Leaf(char=` `, freq=`887,763`)
+```
