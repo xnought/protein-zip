@@ -2,6 +2,8 @@ from __future__ import annotations
 from heapq import heapify, heappop, heappush
 import math
 
+NEW_LINE_ASCII = 10
+
 
 # first I want to parse the string to read the unique characters in the file
 def char_frequencies(string: str) -> dict[str, int]:
@@ -131,7 +133,7 @@ def read_huffman_tree(tree_str: str) -> HuffNode:
     return construct(tuple_tree)
 
 
-def shallow_split(string: str, split_on=10):
+def shallow_split(string: str, split_on=NEW_LINE_ASCII):
     locs = []
     outer = 0
     for i in range(len(string)):
@@ -194,17 +196,18 @@ def decode_huff(root: HuffNode, encoded: str) -> str:
     return result
 
 
-def bits_str_to_bytes(bits: str):
+def bit_str_to_bytes(bits: str):
     n = len(bits)
     byte = bits[:n]
     return int(byte, base=2).to_bytes(math.ceil(n / 8))
 
 
-def bytes_to_bits_str(b: bytes, actual_length):
+def bytes_to_bit_str(b: bytes, offset):
+    """commonly offset by bits length you think it should be"""
     result = ""
     for chunk in b:
         result += f"{chunk:08b}"
-    return result[len(result) - actual_length :]
+    return result[len(result) - offset :]
 
 
 class Huff:
@@ -228,7 +231,7 @@ def to_pz(pdb_file_name: str):
         data = pdb_file.read()
 
     encoded_str, huffman_code = Huff.encode(data)
-    encoded = bits_str_to_bytes(encoded_str)
+    encoded = bit_str_to_bytes(encoded_str)
 
     NL = "\n".encode()
     with open("../null/example.pz", "wb") as pz_file:
@@ -259,7 +262,7 @@ def from_pz(pz_filename="../null/example.pz"):
         encoding = bs[data_loc:]
         tree_str = bs[second_nl + 2 : data_loc - 1]
 
-        encoding = bytes_to_bits_str(encoding, chars)
+        encoding = bytes_to_bit_str(encoding, chars)
         tree_str = tree_str.decode()
         huffman_code = read_huffman_tree(tree_str)
         decoded = Huff.decode(huffman_code, encoding)
@@ -267,7 +270,7 @@ def from_pz(pz_filename="../null/example.pz"):
             pdb_file.write(decoded)
 
 
-def test_working():
+def simple_test():
     test = """
     MODEL     1                                                                     
     ATOM      1  N   ASN A   1     -65.537  -3.389  11.278  1.00 44.93           N  
@@ -290,8 +293,82 @@ def test_working():
     encoded, tree = Huff.encode(test)
     recon = Huff.decode(tree, encoded)
     assert recon == test, "String decoded must be the same as original"
-    print("PASSED")
+
+
+def real_test():
+    compress("./data/A.pdb", "./null/A.pz")
+    decompress("./null/A.pz", "./null/A.pdb")
+
+    # then compare A.pdb to see if same
+    og_str = None
+    new_file = None
+    with open("./data/A.pdb", "r") as og_file:
+        og_str = og_file.read()
+    with open("./null/A.pdb", "r") as new_file:
+        new_str = new_file.read()
+
+    assert new_str == og_str
+
+
+def compress(in_filename: str, out_filename: str):
+    # read in the string to be compressed/encoded
+    in_str = None
+    with open(in_filename, "r") as in_file:
+        in_str = in_file.read()
+
+    # encode the data into bits with huffman coding
+    encoded, tree = Huff.encode(in_str)
+
+    # then I want to write the file
+    with open(out_filename, "wb") as out_file:
+        encoded_bytes = bit_str_to_bytes(encoded)
+
+        HEADER_bit_str_len = f"{len(encoded)}\n".encode()
+        HEADER_huffman_tree = f"{tree.str()}\n".encode()
+        HEADER_data_start = (
+            f"{len(HEADER_bit_str_len) + len(HEADER_huffman_tree)}\n".encode()
+        )
+        # HEADER
+        out_file.write(HEADER_bit_str_len)
+        out_file.write(HEADER_data_start)
+        out_file.write(HEADER_huffman_tree)
+        # BODY
+        out_file.write(encoded_bytes)
+
+
+def parse_header(binary: bytes) -> tuple[int, int, HuffNode]:
+    # index of first and second new line characters
+    first_nl = binary.index(NEW_LINE_ASCII)
+    second_nl = binary[first_nl + 1 :].index(NEW_LINE_ASCII) + first_nl
+
+    # anything up to first new line is the len
+    unpadded_bit_str_len = int(binary[:first_nl].decode())
+    # anything up to the second new line is the start location of the data - len(that number)
+    start_data = int(binary[first_nl + 1 : second_nl + 1].decode())
+    start_data += len(str(start_data))
+    start_data += 1  # skip new line after tree
+
+    # inbetween the second new line and the start of the data is the tree
+    tree_str = binary[second_nl + 2 : start_data - 1].decode()
+    parsed_tree = read_huffman_tree(tree_str)
+
+    return (unpadded_bit_str_len, start_data, parsed_tree)
+
+
+def decompress(in_filename: str, out_filename: str):
+    binary = None
+    with open(in_filename, "rb") as in_file:
+        binary = in_file.read()
+
+    unpadded_bit_str_len, data_start, tree = parse_header(binary)
+    body_bytes = binary[data_start:]
+    body_bit_str = bytes_to_bit_str(body_bytes, offset=unpadded_bit_str_len)
+    decoded = Huff.decode(tree, body_bit_str)
+
+    with open(out_filename, "w") as out_file:
+        out_file.write(decoded)
 
 
 if __name__ == "__main__":
-    test_working()
+    simple_test()
+    real_test()
