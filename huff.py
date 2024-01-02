@@ -1,3 +1,4 @@
+from __future__ import annotations
 from heapq import heapify, heappop, heappush
 import math
 
@@ -14,10 +15,14 @@ def char_frequencies(string: str) -> dict[str, int]:
 
 
 class HuffNode:
-    def __init__(self, freq: int, lchild: "HuffNode" = None, rchild: "HuffNode" = None):
+    def __init__(self, freq: int, lchild: HuffNode = None, rchild: HuffNode = None):
         self.freq = freq
         self.lchild = lchild
         self.rchild = rchild
+
+    @property
+    def is_leaf(self):
+        return self.__class__ is HuffLeaf
 
     def str(self):
         return f"({self.lchild.str()},{self.rchild.str()})"
@@ -37,18 +42,6 @@ class HuffLeaf(HuffNode):
 
     def str(self):
         return f"'{self.char}'"
-
-
-def is_leaf(node: HuffNode):
-    return node.__class__ is HuffLeaf
-
-
-def node_to_heapq_format(node: HuffNode):
-    return (node.freq, node)  # high frequency ones should come up first
-
-
-def heapq_format_to_node(heapq_item: tuple[int, HuffNode]):
-    return heapq_item[1]  # (priority, node)[1] selects node
 
 
 class HuffQueue:
@@ -159,7 +152,7 @@ def leaves_to_encoding(code: HuffNode):
     mapping = {}
 
     def trav(node: HuffNode, bits):
-        if is_leaf(node):
+        if node.is_leaf:
             mapping[node.char] = bits
             return
         trav(node.lchild, bits + "0")
@@ -194,7 +187,7 @@ def decode_huff(root: HuffNode, encoded: str) -> str:
         else:
             print("ERROR")
 
-        if is_leaf(cur_node):
+        if cur_node.is_leaf:
             result += cur_node.char  # this is the correct char
             cur_node = root  # go back to the root node
 
