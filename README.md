@@ -2,9 +2,9 @@
 
 TODO
 
-- [ ] Encode the text in binary using the tree
+- [x] Encode the text in binary using the tree
 - [x] Somehow store the tree information in the file
-- [ ] allow for other characters, like 'ATOM' that shows up alot, it can be represented with a smaller string
+- [ ] fix issue where when reading it misses a fill chunk of data?? Is this a location issue? Or is this an encoding issue?
 
 For example transforming files like [`A.pdb`](./data/A.pdb) into huffman trees for compression
 
