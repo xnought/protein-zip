@@ -1,10 +1,65 @@
-# protein-huffman
+# pzip `.pz`
 
-TODO
+PDB file compression with no external dependencies.
 
-- [x] Encode the text in binary using the tree
-- [x] Somehow store the tree information in the file
-- [ ] fix issue where when reading it misses a fill chunk of data?? Is this a location issue? Or is this an encoding issue?
+Trying to compress a pdb file format down as low as possible. Currently can make `2x` smaller. See [`A.pdb`](./data/A.pdb) versus the zipped protein [`A.pz`](./data/A.pz).
+
+Right now, just doing Huffman coding on a character level. Note that PDB's have very repetitive words like `ATOM` and the three letter coded residues as well as tons of spaces in between. Can likely treat these as characters in the future to get down to `10x` smaller.
+
+
+## Terminal Usage
+
+Follows the structure
+
+```bash
+python3 pzip.py <mode> <input_filename> <output_filename>
+```
+
+where mode can be **zip** (from .pdb to .pz) or **unzip** (from .pz to .pdb).
+
+### Examples
+
+**zip**
+
+```bash
+python3 pzip.py zip ./data/A.pdb ./data/A.pz
+```
+
+**unzip**
+
+```bash
+python3 pzip.py unzip ./data/A.pz ./data/A.pdb
+```
+
+## Python Usage
+
+```py
+from pzip import pzip, unpzip
+
+# compresses A.pdb into A.pz
+pzip("./data/A.pdb", "./data/A.pz")
+
+# decompresses the A.pz back into A.pdb (renamed)
+unpzip("./data/A.pz", "./data/A_decompressed.pdb")
+
+# now A_decompressed.pdb and the original A.pdb are the same
+```
+
+## File Format
+
+See [`A.pz`](./data/A.pz) for a real example
+
+These are fields are separated by new lines
+
+1. Length of bits of the encoded bitstring (not of the padded bytes) {int}
+2. The starting location of the body data bytes {int}
+3. The huffman tree representation in chars {str}
+4. The actual encoded data in bytes {bytes}
+
+> [!NOTE]
+> The fourth field, the actual data, is in chunks of bytes, but the encoding is probably less than a multiple of 8 since I encoded a bit string. So use the first field to offset the padded 0s to get the actual start. Example in the [code](./huff.py).
+
+## Visual Tree
 
 For example transforming files like [`A.pdb`](./data/A.pdb) into huffman trees for compression
 
@@ -80,9 +135,3 @@ Node("2,167,121")
                     └── Leaf('8', "60,099")
 
 ```
-
-## File Format
-
-- Length of characters of the original string
-- The huffman tree representation
-- The encoded bits. Note that it is written in chunks of bytes, so will need to adjust to get the exact number of bits 

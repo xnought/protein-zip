@@ -1,8 +1,11 @@
+#!/usr/local/bin/python3
 from __future__ import annotations
 from heapq import heapify, heappop, heappush
 import math
+import sys
 
 NEW_LINE_ASCII = 10
+TEST_MODE = False
 
 
 # first I want to parse the string to read the unique characters in the file
@@ -224,52 +227,6 @@ class Huff:
         return decoded
 
 
-def to_pz(pdb_file_name: str):
-    """.pz means [p]rotein [z]ip"""
-    data = None
-    with open(pdb_file_name, "r") as pdb_file:
-        data = pdb_file.read()
-
-    encoded_str, huffman_code = Huff.encode(data)
-    encoded = bit_str_to_bytes(encoded_str)
-
-    NL = "\n".encode()
-    with open("../null/example.pz", "wb") as pz_file:
-        # two numbers, character length the location of the start of the tree
-        num_chars = f"{len(data)}".encode() + NL
-
-        huffman_tree_str = huffman_code.str().encode() + NL
-        data_loc = f"{len(huffman_tree_str) + len(num_chars)}".encode() + NL
-
-        # header
-        pz_file.write(num_chars)
-        pz_file.write(data_loc)
-        # tree
-        pz_file.write(huffman_tree_str)
-        # data
-        pz_file.write(encoded)
-
-
-def from_pz(pz_filename="../null/example.pz"):
-    with open(pz_filename, "rb") as pz_file:
-        bs = pz_file.read()
-        first_nl = bs.index(10)
-        second_nl = bs[first_nl + 1 :].index(10) + first_nl
-
-        chars = int(bs[:first_nl].decode())
-        data_loc = int(bs[first_nl : second_nl + 1])
-        data_loc += len(str(data_loc)) + 1  # 1 for NL
-        encoding = bs[data_loc:]
-        tree_str = bs[second_nl + 2 : data_loc - 1]
-
-        encoding = bytes_to_bit_str(encoding, chars)
-        tree_str = tree_str.decode()
-        huffman_code = read_huffman_tree(tree_str)
-        decoded = Huff.decode(huffman_code, encoding)
-        with open("../null/decoded.pdb", "w") as pdb_file:
-            pdb_file.write(decoded)
-
-
 def simple_test():
     test = """
     MODEL     1                                                                     
@@ -296,8 +253,8 @@ def simple_test():
 
 
 def real_test():
-    compress("./data/A.pdb", "./null/A.pz")
-    decompress("./null/A.pz", "./null/A.pdb")
+    pzip("./data/A.pdb", "./null/A.pz")
+    unpzip("./null/A.pz", "./null/A.pdb")
 
     # then compare A.pdb to see if same
     og_str = None
@@ -310,7 +267,7 @@ def real_test():
     assert new_str == og_str
 
 
-def compress(in_filename: str, out_filename: str):
+def pzip(in_filename: str, out_filename: str):
     # read in the string to be compressed/encoded
     in_str = None
     with open(in_filename, "r") as in_file:
@@ -355,7 +312,7 @@ def parse_header(binary: bytes) -> tuple[int, int, HuffNode]:
     return (unpadded_bit_str_len, start_data, parsed_tree)
 
 
-def decompress(in_filename: str, out_filename: str):
+def unpzip(in_filename: str, out_filename: str):
     binary = None
     with open(in_filename, "rb") as in_file:
         binary = in_file.read()
@@ -370,5 +327,28 @@ def decompress(in_filename: str, out_filename: str):
 
 
 if __name__ == "__main__":
-    simple_test()
-    real_test()
+    if TEST_MODE:
+        simple_test()
+        real_test()
+    else:
+        # command line mode
+        # example: python3 pzip.py
+        args = sys.argv[1:]
+        num_args = len(args)
+        if num_args == 0 or num_args == 1 or num_args == 2:
+            raise Exception(
+                f"{num_args} is not enough arguments need 3\nExample: python3 pzip.py zip file1 file2 or python3 pzip.py unzip file1 file2"
+            )
+        elif num_args == 3:
+            [mode, in_filename, out_filename] = args
+            if mode != "zip" and mode != "unzip":
+                raise Exception("Must be zip or unzip for mode")
+            if mode == "zip":
+                pzip(in_filename, out_filename)
+            elif mode == "unzip":
+                unpzip(in_filename, out_filename)
+            else:
+                raise Exception("impossible to get here")
+
+        else:
+            raise Exception("too many arguments")
