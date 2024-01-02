@@ -80,3 +80,9 @@ Node("2,167,121")
                     └── Leaf('8', "60,099")
 
 ```
+
+## File Format
+
+- Length of characters of the original string
+- The huffman tree representation
+- The encoded bits. Note that it is written in chunks of bytes, so will need to adjust to get the exact number of bits 
