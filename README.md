@@ -6,6 +6,7 @@ Trying to compress a pdb file format down as low as possible. Currently can make
 
 Right now, just doing Huffman coding on a character level. Note that PDB's have very repetitive words like `ATOM` and the three letter coded residues as well as tons of spaces in between. Can likely treat these as characters in the future to get down to `10x` smaller.
 
+gzip can do 5x smaller on A.pdb, let's see if I can beat that!
 
 ## Terminal Usage
 
