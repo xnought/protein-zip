@@ -47,9 +47,18 @@ unpzip("./data/A.pz", "./data/A_decompressed.pdb")
 
 ## File Format
 
-See [`A.pz`](./data/A.pz) for a real example
+See [`A.pz`](./data/A.pz) or click/toggle the details to see an example
+
+<details>
+    <summary>
+    toggle screenshot of A.pz from vscode
+    </summary>
+    <img width="1433" alt="Screenshot 2024-01-01 at 7 59 08 PM" src="https://github.com/xnought/protein-zip/assets/65095341/96f4b4cc-bef9-414c-b649-533817057fce">
+</details>
+
 
 These are fields are separated by new lines
+
 
 1. Length of bits of the encoded bitstring (not of the padded bytes) {int}
 2. The starting location of the body data bytes {int}
