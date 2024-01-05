@@ -67,7 +67,7 @@ These are fields are separated by new lines
 4. The actual encoded data in bytes {bytes}
 
 > [!NOTE]
-> The fourth field, the actual data, is in chunks of bytes, but the encoding is probably less than a multiple of 8 since I encoded a bit string. So use the first field to offset the padded 0s to get the actual start. Example in the [code](./huff.py).
+> The fourth field, the actual data, is in chunks of bytes, but the encoding is probably less than a multiple of 8 since I encoded a bit string. So use the first field to offset the padded 0s to get the actual start. Example in the [code](./pzip.py).
 
 ## Visual Tree
 
