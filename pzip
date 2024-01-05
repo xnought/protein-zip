@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python3 ../pzip.py zip $1 $2

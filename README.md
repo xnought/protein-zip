@@ -23,27 +23,25 @@ where mode can be **zip** (from .pdb to .pz) or **unzip** (from .pz to .pdb).
 **zip**
 
 ```bash
-python3 pzip.py zip ./data/A.pdb ./data/A.pz
+./pzip ./data/A.pdb ./data/A.pz
 ```
 
 **unzip**
 
 ```bash
-python3 pzip.py unzip ./data/A.pz ./data/A.pdb
+./punzip ./data/A.pz ./data/A.pdb
 ```
 
 ## Python Usage
 
 ```py
-from pzip import pzip, unpzip
+from pzip import pzip, punzip
 
 # compresses A.pdb into A.pz
 pzip("./data/A.pdb", "./data/A.pz")
 
 # decompresses the A.pz back into A.pdb (renamed)
-unpzip("./data/A.pz", "./data/A_decompressed.pdb")
-
-# now A_decompressed.pdb and the original A.pdb are the same
+punzip("./data/A.pz", "./data/A.pdb")
 ```
 
 ## File Format

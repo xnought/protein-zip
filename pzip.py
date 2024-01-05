@@ -254,7 +254,7 @@ def simple_test():
 
 def real_test():
     pzip("./data/A.pdb", "./null/A.pz")
-    unpzip("./null/A.pz", "./null/A.pdb")
+    punzip("./null/A.pz", "./null/A.pdb")
 
     # then compare A.pdb to see if same
     og_str = None
@@ -312,7 +312,7 @@ def parse_header(binary: bytes) -> tuple[int, int, HuffNode]:
     return (unpadded_bit_str_len, start_data, parsed_tree)
 
 
-def unpzip(in_filename: str, out_filename: str):
+def punzip(in_filename: str, out_filename: str):
     binary = None
     with open(in_filename, "rb") as in_file:
         binary = in_file.read()
@@ -332,7 +332,6 @@ if __name__ == "__main__":
         real_test()
     else:
         # command line mode
-        # example: python3 pzip.py
         args = sys.argv[1:]
         num_args = len(args)
         if num_args == 0 or num_args == 1 or num_args == 2:
@@ -346,7 +345,7 @@ if __name__ == "__main__":
             if mode == "zip":
                 pzip(in_filename, out_filename)
             elif mode == "unzip":
-                unpzip(in_filename, out_filename)
+                punzip(in_filename, out_filename)
             else:
                 raise Exception("impossible to get here")
 
