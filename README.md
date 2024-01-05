@@ -1,6 +1,6 @@
 # pzip `.pz`
 
-PDB file compression with no external dependencies.
+PDB file compression with no external dependencies only built-in python libraries used.
 
 Trying to compress a pdb file format down as low as possible. Currently can make `2x` smaller. See [`A.pdb`](./data/A.pdb) versus the zipped protein [`A.pz`](./data/A.pz).
 
