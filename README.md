@@ -10,15 +10,13 @@ gzip can do 5x smaller on A.pdb, let's see if I can beat that!
 
 ## Terminal Usage
 
-Follows the structure
+You can directly call the python code with
 
 ```bash
 python3 pzip.py <mode> <input_filename> <output_filename>
 ```
 
-where mode can be **zip** (from .pdb to .pz) or **unzip** (from .pz to .pdb).
-
-### Examples
+where mode can be **zip** (from .pdb to .pz) or **unzip** (from .pz to .pdb). Alternatively, you can use separate `pzip` and `punzip` executables as shown below:
 
 **zip**
 
