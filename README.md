@@ -18,13 +18,13 @@ python3 pzip.py <mode> <input_filename> <output_filename>
 
 where mode can be **zip** (from .pdb to .pz) or **unzip** (from .pz to .pdb). Alternatively, you can use separate `pzip` and `punzip` executables as shown below:
 
-**zip**
+**`.pdb` compressing to `.pz`**
 
 ```bash
 ./pzip ./data/A.pdb ./data/A.pz
 ```
 
-**unzip**
+**`.pz` uncompressing to `.pdb`**
 
 ```bash
 ./punzip ./data/A.pz ./data/A.pdb
